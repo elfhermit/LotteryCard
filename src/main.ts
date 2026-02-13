@@ -31,12 +31,29 @@ class App {
   private collectedBlessings: Set<string> = new Set();
 
   constructor() {
-    this.soundManager = new SoundManager();
-    this.checkEveMode();
-    this.loadCollection();
-    this.initDecorations();
-    this.initUI();
-    this.setupGame();
+    try {
+      this.soundManager = new SoundManager();
+      this.checkEveMode();
+      this.loadCollection();
+      this.initDecorations();
+      this.initUI();
+      this.setupGame();
+    } catch (err) {
+      this.handleGlobalError(err);
+    }
+  }
+
+  private handleGlobalError(err: any) {
+    const app = document.querySelector<HTMLDivElement>('#app');
+    if (app) {
+      app.innerHTML = `
+        <div style="background: white; color: black; padding: 20px; border-radius: 10px; text-align: left;">
+          <h3 style="color: red;">初始化發生錯誤</h3>
+          <p>請嘗試重新整理網頁。若問題持續，請將以下資訊提供給開發者：</p>
+          <pre style="font-size: 12px; overflow: auto;">${err.message}\n${err.stack}</pre>
+        </div>
+      `;
+    }
   }
 
   private checkEveMode() {
