@@ -3,8 +3,8 @@ import config from '../src/config.json';
 import { ScratchCard } from '../src/scratch-card';
 
 describe('Lottery Card Logic', () => {
-  it('should have 10 blessings in config', () => {
-    expect(config.blessings).toHaveLength(10);
+  it('should have 50 blessings in config', () => {
+    expect(config.blessings).toHaveLength(50);
     expect(config.blessings[0]).toContain('馬到成功');
   });
 
