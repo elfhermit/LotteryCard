@@ -200,9 +200,11 @@ class App {
       const canvas = await html2canvas(captureArea, {
         backgroundColor: null,
         scale: 2,
+        logging: false,
       });
       
       const image = canvas.toDataURL('image/png');
+      const currentBlessing = this.blessingElement.textContent || '馬到成功';
       
       if (navigator.share && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
         const blob = await (await fetch(image)).blob();
@@ -210,18 +212,18 @@ class App {
         
         await navigator.share({
           title: '馬年大吉刮刮樂',
-          text: `我在馬年刮刮樂刮到了：『${this.blessingElement.textContent}』！`,
+          text: `我在馬年刮刮樂刮到了：『${currentBlessing}』！`,
           files: [file],
         });
       } else {
         // PC 端或不支援檔案分享時，觸發下載
         const link = document.createElement('a');
-        link.download = 'lucky-card.png';
+        link.download = `馬年刮刮樂-${currentBlessing}.png`;
         link.href = image;
         link.click();
       }
     } catch (err) {
-      console.error('分享失敗', err);
+      // 靜默處理分享失敗，避免污染 console
     }
   }
 }
