@@ -193,10 +193,11 @@ class App {
     if (!this.scratchCard) {
       this.scratchCard = new ScratchCard({
         canvas: this.canvas,
-        coverColor: '#bfbcbc',
-        brushSize: 35,
+        coverColor: '#C0C0C0',
+        brushSize: 45, // 更大的刷頭
         onProgress: (progress) => {
-          if (progress > typedConfig.settings.celebrationThreshold && !this.isRevealed) {
+          // 調降閾值，讓使用者更快獲得回饋
+          if (progress > 0.6 && !this.isRevealed) {
             this.revealSuccess(progress);
           }
         },

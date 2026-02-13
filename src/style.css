@@ -4,12 +4,12 @@
   --gold: #ffd700;
   --bright-gold: #fff176;
   --white: #ffffff;
-  --bg-gradient: radial-gradient(circle, #d32f2f 0%, #7f0000 100%);
+  --bg-color: #b71c1c;
 }
 
 body {
-  font-family: 'Kaiti', 'STKaiti', 'Microsoft JhengHei', serif;
-  background: var(--bg-gradient);
+  font-family: 'Microsoft JhengHei', sans-serif;
+  background-color: var(--bg-color);
   color: var(--white);
   display: flex;
   justify-content: center;
@@ -20,92 +20,52 @@ body {
   touch-action: none;
 }
 
-body.gold-mode {
-  --primary-red: #ffd700;
-  --deep-red: #b8860b;
-  --gold: #ffffff;
-  --bg-gradient: radial-gradient(circle, #fff176 0%, #fbc02d 100%);
-}
-
-body.eve-mode {
-  animation: bg-pulse 5s infinite;
-}
-
-@keyframes bg-pulse {
-  0% { background-color: #b71c1c; }
-  50% { background-color: #d32f2f; }
-  100% { background-color: #b71c1c; }
-}
-
 #app {
   text-align: center;
-  width: 90%;
+  width: 95%;
   max-width: 450px;
   position: relative;
   z-index: 10;
 }
 
 .collection-info {
-  background: rgba(0, 0, 0, 0.3);
-  padding: 5px 15px;
-  border-radius: 20px;
-  font-size: 0.9rem;
+  background: #7f0000;
+  padding: 4px 12px;
+  border-radius: 4px;
+  font-size: 0.85rem;
   color: var(--gold);
   display: inline-block;
-  margin-bottom: 10px;
+  margin-bottom: 8px;
   border: 1px solid var(--gold);
 }
 
-/* 裝飾性元素 */
+/* 移除複雜裝飾，保留輕量 SVG */
 .decoration {
   position: fixed;
   pointer-events: none;
   z-index: 1;
 }
 
-.lantern {
-  width: 60px;
-  top: -10px;
-  animation: swing 3s ease-in-out infinite alternate;
-  transform-origin: top center;
-}
+.lantern { width: 50px; top: 0; }
+.lantern-left { left: 2%; }
+.lantern-right { right: 2%; }
 
-.lantern-left { left: 5%; }
-.lantern-right { right: 5%; }
-
-@keyframes swing {
-  from { transform: rotate(-5deg); }
-  to { transform: rotate(5deg); }
-}
-
-.cloud {
-  width: 100px;
-  opacity: 0.6;
-  animation: float 10s linear infinite;
-}
-
-@keyframes float {
-  from { transform: translateX(-150%); }
-  to { transform: translateX(400%); }
-}
-
-/* 卡片容器美化 */
+/* 卡片容器：移除毛玻璃，使用純色與實線邊框 */
 .card-outer {
-  padding: 15px;
-  background: linear-gradient(135deg, var(--gold) 0%, var(--bright-gold) 50%, var(--gold) 100%);
-  border-radius: 20px;
-  box-shadow: 0 15px 35px rgba(0,0,0,0.5);
-  margin: 20px auto;
-  position: relative;
+  padding: 10px;
+  background: var(--gold);
+  border-radius: 12px;
+  box-shadow: 0 8px 16px rgba(0,0,0,0.3);
+  margin: 15px auto;
 }
 
 .card-container {
   position: relative;
   width: 320px;
-  height: 220px;
+  height: 200px;
   background-color: var(--white);
-  border: 4px solid var(--deep-red);
-  border-radius: 10px;
+  border: 2px solid var(--deep-red);
+  border-radius: 4px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -113,16 +73,12 @@ body.eve-mode {
 }
 
 .blessing-text {
-  font-size: 2.2rem;
+  font-size: 2rem;
   color: var(--deep-red);
   font-weight: bold;
-  padding: 20px;
-  line-height: 1.4;
-  text-shadow: 1px 1px 0px rgba(0,0,0,0.1);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  height: 100%;
+  padding: 15px;
+  text-align: center;
+  user-select: none;
 }
 
 #scratch-canvas {
@@ -131,62 +87,42 @@ body.eve-mode {
   left: 0;
   cursor: crosshair;
   touch-action: none;
-  border-radius: 6px;
 }
 
-/* 按鈕美化 */
+/* 按鈕組 */
 .button-group {
   display: flex;
-  gap: 15px;
+  gap: 10px;
   justify-content: center;
-  margin-top: 25px;
+  margin-top: 20px;
 }
 
 .btn {
-  background: linear-gradient(to bottom, var(--bright-gold), var(--gold));
+  background: var(--gold);
   color: var(--deep-red);
-  border: 2px solid var(--deep-red);
-  padding: 14px 28px;
-  font-size: 1.3rem;
-  font-weight: 900;
-  border-radius: 50px;
+  border: 1px solid var(--deep-red);
+  padding: 12px 24px;
+  font-size: 1.1rem;
+  font-weight: bold;
+  border-radius: 4px;
   cursor: pointer;
-  transition: all 0.3s;
-  box-shadow: 0 6px 0 var(--deep-red);
+  box-shadow: 0 4px 0 var(--deep-red);
   position: relative;
-  top: 0;
 }
 
 .btn:active {
-  top: 4px;
+  top: 2px;
   box-shadow: 0 2px 0 var(--deep-red);
 }
 
-.btn-share {
-  background: linear-gradient(to bottom, #ffffff, #eeeeee);
-  font-size: 1.1rem;
-}
-
-.btn-main {
-  animation: pulse 2s infinite;
-}
-
-@keyframes pulse {
-  0% { transform: scale(1); }
-  50% { transform: scale(1.05); }
-  100% { transform: scale(1); }
-}
-
 h1 {
-  font-size: 2.5rem;
-  margin-bottom: 5px;
+  font-size: 2rem;
+  margin: 0;
   color: var(--gold);
-  text-shadow: 3px 3px 0px var(--deep-red);
-  letter-spacing: 2px;
 }
 
 .subtitle {
   color: var(--bright-gold);
-  margin-bottom: 20px;
-  font-size: 1.1rem;
+  margin: 5px 0 15px 0;
+  font-size: 1rem;
 }

@@ -17,8 +17,8 @@ export class ScratchCard {
 
   constructor(options: ScratchCardOptions) {
     this.options = {
-      coverColor: '#CCCCCC',
-      brushSize: 30,
+      coverColor: '#C0C0C0', // 標準銀色
+      brushSize: 40, // 加大刷頭
       onProgress: () => {},
       onComplete: () => {},
       onScratchStart: () => {},
@@ -40,24 +40,17 @@ export class ScratchCard {
 
   public reset() {
     const { width, height } = this.options.canvas;
+    
+    // 快速純色填充，優化效能
     this.ctx.globalCompositeOperation = 'source-over';
     this.ctx.fillStyle = this.options.coverColor;
     this.ctx.fillRect(0, 0, width, height);
 
-    // 加上簡單的斜線紋理
-    this.ctx.strokeStyle = 'rgba(255,255,255,0.1)';
-    this.ctx.lineWidth = 2;
-    for (let i = -width; i < width; i += 10) {
-      this.ctx.beginPath();
-      this.ctx.moveTo(i, 0);
-      this.ctx.lineTo(i + height, height);
-      this.ctx.stroke();
-    }
-
-    this.ctx.fillStyle = '#666666';
-    this.ctx.font = 'bold 24px "Microsoft JhengHei"';
+    // 簡單文字提示，避免複雜渲染
+    this.ctx.fillStyle = '#555555';
+    this.ctx.font = 'bold 20px sans-serif';
     this.ctx.textAlign = 'center';
-    this.ctx.fillText('請在此刮開', width / 2, height / 2 + 8);
+    this.ctx.fillText('請在此刮開', width / 2, height / 2 + 7);
 
     this.ctx.globalCompositeOperation = 'destination-out';
   }
@@ -94,8 +87,8 @@ export class ScratchCard {
     canvas.addEventListener('mousemove', move);
     window.addEventListener('mouseup', end);
 
-    canvas.addEventListener('touchstart', start);
-    canvas.addEventListener('touchmove', move);
+    canvas.addEventListener('touchstart', start, { passive: false });
+    canvas.addEventListener('touchmove', move, { passive: false });
     window.addEventListener('touchend', end);
   }
 
@@ -104,8 +97,8 @@ export class ScratchCard {
     const clientX = 'touches' in e ? e.touches[0].clientX : e.clientX;
     const clientY = 'touches' in e ? e.touches[0].clientY : e.clientY;
     return {
-      x: clientX - rect.left,
-      y: clientY - rect.top
+      x: (clientX - rect.left) * (this.options.canvas.width / rect.width),
+      y: (clientY - rect.top) * (this.options.canvas.height / rect.height)
     };
   }
 
@@ -121,20 +114,22 @@ export class ScratchCard {
 
   public calculateProgress() {
     const { width, height } = this.options.canvas;
+    // 效能優化：只檢查 1/16 的像素點進行估算
     const imageData = this.ctx.getImageData(0, 0, width, height);
     const pixels = imageData.data;
     let transparentPixels = 0;
+    const step = 16; // 跨步取樣
 
-    for (let i = 3; i < pixels.length; i += 4) {
+    for (let i = 3; i < pixels.length; i += step) {
       if (pixels[i] === 0) {
         transparentPixels++;
       }
     }
 
-    const progress = transparentPixels / (width * height);
+    const progress = (transparentPixels * (step / 4)) / (width * height);
     this.options.onProgress(progress);
 
-    if (progress > 0.9) {
+    if (progress > 0.85) {
         this.reveal();
     }
   }
