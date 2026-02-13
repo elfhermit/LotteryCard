@@ -27,8 +27,10 @@ class App {
   private isGoldMode = false;
   private clickCount = 0;
   private lastClickTime = 0;
-  private soundManager: SoundManager;
+  private soundManager!: SoundManager;
   private collectedBlessings: Set<string> = new Set();
+
+  private cleanFreakTriggered = false;
 
   constructor() {
     try {
@@ -59,7 +61,7 @@ class App {
     const leftLantern = document.createElement('div');
     leftLantern.className = 'decoration lantern lantern-left';
     leftLantern.innerHTML = lanternSVG;
-    
+
     const rightLantern = document.createElement('div');
     rightLantern.className = 'decoration lantern lantern-right';
     rightLantern.innerHTML = lanternSVG;
@@ -146,7 +148,7 @@ class App {
     });
 
     this.shareButton.addEventListener('click', () => this.handleShare());
-    
+
     this.titleElement.addEventListener('click', () => this.handleTitleClick());
   }
 
@@ -169,13 +171,40 @@ class App {
     document.body.classList.add('gold-mode');
     this.titleElement.textContent = '✨ 黃金馬年 ✨';
     this.setupGame();
-    confetti({ particleCount: 150, spread: 100, colors: ['#ffd700'] });
+    this.playCelebration();
+  }
+
+  private playCelebration() {
+    const duration = 3000;
+    const end = Date.now() + duration;
+
+    (function frame() {
+      confetti({
+        particleCount: 3,
+        angle: 60,
+        spread: 55,
+        origin: { x: 0 },
+        colors: ['#b71c1c', '#ffd700', '#ffffff']
+      });
+      confetti({
+        particleCount: 3,
+        angle: 120,
+        spread: 55,
+        origin: { x: 1 },
+        colors: ['#b71c1c', '#ffd700', '#ffffff']
+      });
+
+      if (Date.now() < end) {
+        requestAnimationFrame(frame);
+      }
+    }());
   }
 
   private setupGame() {
     this.isRevealed = false;
+    this.cleanFreakTriggered = false;
     let blessing = '';
-    
+
     if (this.isGoldMode) {
       blessing = "✨ 恭喜解鎖隱藏大吉：黃金萬兩馬上有！ ✨";
       this.isGoldMode = false; // 用完一次即恢復
@@ -187,7 +216,7 @@ class App {
       const blessings = typedConfig.blessings;
       blessing = blessings[Math.floor(Math.random() * blessings.length)];
     }
-    
+
     this.blessingElement.textContent = blessing;
 
     if (!this.scratchCard) {
@@ -199,6 +228,10 @@ class App {
           // 調降閾值，讓使用者更快獲得回饋
           if (progress > 0.6 && !this.isRevealed) {
             this.revealSuccess(progress);
+          }
+          // 獨立檢查潔癖王成就
+          if (progress > 0.98 && !this.cleanFreakTriggered) {
+            this.triggerCleanFreak();
           }
         },
         onComplete: () => {
@@ -217,18 +250,19 @@ class App {
     }
   }
 
-  private revealSuccess(progress: number) {
+  private revealSuccess(_progress: number) {
     this.isRevealed = true;
     this.scratchCard.reveal();
     this.playCelebration();
     this.soundManager.playCelebration();
     this.saveCollection(this.blessingElement.textContent || '');
+  }
 
-    if (progress > 0.98) {
-      setTimeout(() => {
-        alert('🏆 潔癖王！您的堅持令人敬佩！祝您今年運勢也一樣順順利利！');
-      }, 500);
-    }
+  private triggerCleanFreak() {
+    this.cleanFreakTriggered = true;
+    setTimeout(() => {
+      alert('🏆 潔癖王！您的堅持令人敬佩！祝您今年運勢也一樣順順利利！');
+    }, 500);
   }
 
   private async handleShare() {
@@ -238,21 +272,21 @@ class App {
     }
 
     const captureArea = document.getElementById('capture-area')!;
-    
+
     try {
       const canvas = await html2canvas(captureArea, {
         backgroundColor: null,
         scale: 2,
         logging: false,
       });
-      
+
       const image = canvas.toDataURL('image/png');
       const currentBlessing = this.blessingElement.textContent || '馬到成功';
-      
+
       if (navigator.share && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
         const blob = await (await fetch(image)).blob();
         const file = new File([blob], 'lucky-card.png', { type: 'image/png' });
-        
+
         await navigator.share({
           title: '馬年大吉刮刮樂',
           text: `我在馬年刮刮樂刮到了：『${currentBlessing}』！`,

@@ -19,10 +19,10 @@ export class ScratchCard {
     this.options = {
       coverColor: '#C0C0C0', // 標準銀色
       brushSize: 40, // 加大刷頭
-      onProgress: () => {},
-      onComplete: () => {},
-      onScratchStart: () => {},
-      onScratchEnd: () => {},
+      onProgress: () => { },
+      onComplete: () => { },
+      onScratchStart: () => { },
+      onScratchEnd: () => { },
       ...options
     };
 
@@ -40,7 +40,7 @@ export class ScratchCard {
 
   public reset() {
     const { width, height } = this.options.canvas;
-    
+
     // 快速純色填充，優化效能
     this.ctx.globalCompositeOperation = 'source-over';
     this.ctx.fillStyle = this.options.coverColor;
@@ -130,7 +130,7 @@ export class ScratchCard {
     this.options.onProgress(progress);
 
     if (progress > 0.85) {
-        this.reveal();
+      this.reveal();
     }
   }
 
