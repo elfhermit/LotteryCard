@@ -5,7 +5,7 @@ import { ScratchCard } from '../src/scratch-card';
 describe('Lottery Card Logic', () => {
   it('should have 10 blessings in config', () => {
     expect(config.blessings).toHaveLength(10);
-    expect(config.blessings).toContain('馬到成功');
+    expect(config.blessings[0]).toContain('馬到成功');
   });
 
   describe('ScratchCard', () => {
