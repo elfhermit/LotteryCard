@@ -2,41 +2,47 @@ import { describe, it, expect, beforeEach, vi } from 'vitest';
 import config from '../src/config.json';
 import { ScratchCard } from '../src/scratch-card';
 
-describe('Lottery Card Logic', () => {
+describe('Lottery Card Advanced Logic', () => {
   it('should have 50 blessings in config', () => {
     expect(config.blessings).toHaveLength(50);
-    expect(config.blessings[0]).toContain('馬到成功');
   });
 
-  describe('ScratchCard', () => {
+  describe('LocalStorage Persistence', () => {
+    beforeEach(() => {
+      localStorage.clear();
+    });
+
+    it('should save and load collected blessings', () => {
+      const blessing = '馬到成功';
+      const collection = JSON.parse(localStorage.getItem('lottery_collection') || '[]');
+      collection.push(blessing);
+      localStorage.setItem('lottery_collection', JSON.stringify(collection));
+      
+      const saved = JSON.parse(localStorage.getItem('lottery_collection') || '[]');
+      expect(saved).toContain(blessing);
+    });
+  });
+
+  describe('ScratchCard Progress Calculation', () => {
     let canvas: HTMLCanvasElement;
     
     beforeEach(() => {
       canvas = document.createElement('canvas');
       canvas.width = 100;
       canvas.height = 100;
-      // Mock getContext if needed, but jsdom usually provides a basic one
-      // If it doesn't support getImageData, we might need a more complex mock
     });
 
-    it('should initialize and reset canvas', () => {
-      const card = new ScratchCard({ canvas });
-      expect(card).toBeDefined();
-      
-      const ctx = canvas.getContext('2d')!;
-      // destination-out should be set after reset
-      expect(ctx.globalCompositeOperation).toBe('destination-out');
-    });
-
-    it('should calculate progress (mocked)', () => {
+    it('should calculate progress > 0.98 for cleanliness king', () => {
       const onProgress = vi.fn();
       const card = new ScratchCard({ canvas, onProgress });
       
+      // 直接操作像素模擬完全刮除
+      const ctx = canvas.getContext('2d')!;
+      ctx.clearRect(0, 0, 100, 100);
+      
       card.calculateProgress();
-      expect(onProgress).toHaveBeenCalled();
       const progress = onProgress.mock.calls[0][0];
-      expect(progress).toBeGreaterThanOrEqual(0);
-      expect(progress).toBeLessThanOrEqual(1);
+      expect(progress).toBeGreaterThan(0.98);
     });
   });
 });

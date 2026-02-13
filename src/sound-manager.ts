@@ -5,16 +5,16 @@ export class SoundManager {
   private celebrationSound: Howl | null = null;
 
   constructor() {
-    // These paths assume files are in the public folder
+    // 使用公共免版權音效網址作為示範
     this.scratchSound = new Howl({
-      src: ['/sounds/scratch.mp3'],
+      src: ['https://assets.mixkit.co/active_storage/sfx/2571/2571-preview.mp3'],
       loop: true,
-      volume: 0.5
+      volume: 0.3
     });
 
     this.celebrationSound = new Howl({
-      src: ['/sounds/celebration.mp3'],
-      volume: 0.8
+      src: ['https://assets.mixkit.co/active_storage/sfx/2013/2013-preview.mp3'],
+      volume: 0.6
     });
   }
 

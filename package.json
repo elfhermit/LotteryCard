@@ -14,7 +14,8 @@
   "description": "",
   "dependencies": {
     "canvas-confetti": "^1.9.4",
-    "howler": "^2.2.4"
+    "howler": "^2.2.4",
+    "html2canvas": "^1.4.1"
   },
   "devDependencies": {
     "@types/canvas-confetti": "^1.9.0",

@@ -20,12 +20,40 @@ body {
   touch-action: none;
 }
 
+body.gold-mode {
+  --primary-red: #ffd700;
+  --deep-red: #b8860b;
+  --gold: #ffffff;
+  --bg-gradient: radial-gradient(circle, #fff176 0%, #fbc02d 100%);
+}
+
+body.eve-mode {
+  animation: bg-pulse 5s infinite;
+}
+
+@keyframes bg-pulse {
+  0% { background-color: #b71c1c; }
+  50% { background-color: #d32f2f; }
+  100% { background-color: #b71c1c; }
+}
+
 #app {
   text-align: center;
   width: 90%;
   max-width: 450px;
   position: relative;
   z-index: 10;
+}
+
+.collection-info {
+  background: rgba(0, 0, 0, 0.3);
+  padding: 5px 15px;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  color: var(--gold);
+  display: inline-block;
+  margin-bottom: 10px;
+  border: 1px solid var(--gold);
 }
 
 /* 裝飾性元素 */

@@ -3,6 +3,7 @@ import config from './config.json';
 import { ScratchCard } from './scratch-card';
 import { SoundManager } from './sound-manager';
 import confetti from 'canvas-confetti';
+import html2canvas from 'html2canvas';
 
 interface Config {
   blessings: string[];
@@ -20,48 +21,62 @@ class App {
   private canvas!: HTMLCanvasElement;
   private resetButton!: HTMLButtonElement;
   private shareButton!: HTMLButtonElement;
+  private collectionElement!: HTMLElement;
+  private titleElement!: HTMLElement;
   private isRevealed = false;
+  private isGoldMode = false;
+  private clickCount = 0;
+  private lastClickTime = 0;
   private soundManager: SoundManager;
+  private collectedBlessings: Set<string> = new Set();
 
   constructor() {
     this.soundManager = new SoundManager();
+    this.checkEveMode();
+    this.loadCollection();
     this.initDecorations();
     this.initUI();
     this.setupGame();
   }
 
-  private initDecorations() {
-    // 加入燈籠裝飾
-    const lanternSVG = `
-      <svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
-        <rect x="45" y="0" width="10" height="20" fill="#ffd700"/>
-        <ellipse cx="50" cy="60" rx="40" ry="45" fill="#d32f2f" stroke="#ffd700" stroke-width="3"/>
-        <line x1="50" y1="15" x2="50" y2="105" stroke="#ffd700" stroke-width="2"/>
-        <line x1="25" y1="30" x2="25" y2="90" stroke="#ffd700" stroke-width="1" opacity="0.5"/>
-        <line x1="75" y1="30" x2="75" y2="90" stroke="#ffd700" stroke-width="1" opacity="0.5"/>
-        <rect x="30" y="105" width="40" height="10" fill="#ffd700"/>
-      </svg>
-    `;
+  private checkEveMode() {
+    const now = new Date();
+    // 簡單判定：如果是除夕 (通常在 1月或 2月) - 這裡以 2026/2/16 為除夕範例
+    // 實際產品可串接農曆轉換庫
+    const month = now.getMonth() + 1;
+    const date = now.getDate();
+    if (month === 2 && (date === 16 || date === 17)) {
+      document.body.classList.add('eve-mode');
+    }
+  }
 
-    const leftLantern = document.createElement('div');
-    leftLantern.className = 'decoration lantern lantern-left';
-    leftLantern.innerHTML = lanternSVG;
-    
-    const rightLantern = document.createElement('div');
-    rightLantern.className = 'decoration lantern lantern-right';
-    rightLantern.innerHTML = lanternSVG;
+  private loadCollection() {
+    const saved = localStorage.getItem('lottery_collection');
+    if (saved) {
+      this.collectedBlessings = new Set(JSON.parse(saved));
+    }
+  }
 
-    document.body.appendChild(leftLantern);
-    document.body.appendChild(rightLantern);
+  private saveCollection(blessing: string) {
+    this.collectedBlessings.add(blessing);
+    localStorage.setItem('lottery_collection', JSON.stringify(Array.from(this.collectedBlessings)));
+    this.updateCollectionUI();
+  }
+
+  private updateCollectionUI() {
+    if (this.collectionElement) {
+      this.collectionElement.textContent = `已蒐集: ${this.collectedBlessings.size} / ${typedConfig.blessings.length}`;
+    }
   }
 
   private initUI() {
     const app = document.querySelector<HTMLDivElement>('#app')!;
     app.innerHTML = `
-      <h1>🧧 駿馬迎春</h1>
+      <div id="collection-info" class="collection-info"></div>
+      <h1 id="main-title">🧧 駿馬迎春</h1>
       <p class="subtitle">刮出您的馬年專屬福氣</p>
       
-      <div class="card-outer">
+      <div id="capture-area" class="card-outer">
         <div class="card-container">
           <div id="blessing" class="blessing-text"></div>
           <canvas id="scratch-canvas" width="320" height="220"></canvas>
@@ -78,35 +93,74 @@ class App {
     this.canvas = document.getElementById('scratch-canvas') as HTMLCanvasElement;
     this.resetButton = document.getElementById('reset-btn') as HTMLButtonElement;
     this.shareButton = document.getElementById('share-btn') as HTMLButtonElement;
+    this.collectionElement = document.getElementById('collection-info')!;
+    this.titleElement = document.getElementById('main-title')!;
+
+    this.updateCollectionUI();
 
     this.resetButton.addEventListener('click', () => {
       this.setupGame();
-      // 點擊回饋：震動
       if ('vibrate' in navigator) navigator.vibrate(20);
     });
 
     this.shareButton.addEventListener('click', () => this.handleShare());
+    
+    this.titleElement.addEventListener('click', () => this.handleTitleClick());
+  }
+
+  private handleTitleClick() {
+    const now = Date.now();
+    if (now - this.lastClickTime < 500) {
+      this.clickCount++;
+    } else {
+      this.clickCount = 1;
+    }
+    this.lastClickTime = now;
+
+    if (this.clickCount === 5) {
+      this.triggerGoldMode();
+    }
+  }
+
+  private triggerGoldMode() {
+    this.isGoldMode = true;
+    document.body.classList.add('gold-mode');
+    this.titleElement.textContent = '✨ 黃金馬年 ✨';
+    this.setupGame();
+    confetti({ particleCount: 150, spread: 100, colors: ['#ffd700'] });
   }
 
   private setupGame() {
     this.isRevealed = false;
-    const blessings = typedConfig.blessings;
-    const randomBlessing = blessings[Math.floor(Math.random() * blessings.length)];
-    this.blessingElement.textContent = randomBlessing;
+    let blessing = '';
+    
+    if (this.isGoldMode) {
+      blessing = "✨ 恭喜解鎖隱藏大吉：黃金萬兩馬上有！ ✨";
+      this.isGoldMode = false; // 用完一次即恢復
+      setTimeout(() => {
+        document.body.classList.remove('gold-mode');
+        this.titleElement.textContent = '🧧 駿馬迎春';
+      }, 5000);
+    } else {
+      const blessings = typedConfig.blessings;
+      blessing = blessings[Math.floor(Math.random() * blessings.length)];
+    }
+    
+    this.blessingElement.textContent = blessing;
 
     if (!this.scratchCard) {
       this.scratchCard = new ScratchCard({
         canvas: this.canvas,
-        coverColor: '#bfbcbc', // 銀灰色覆蓋層
+        coverColor: '#bfbcbc',
         brushSize: 35,
         onProgress: (progress) => {
           if (progress > typedConfig.settings.celebrationThreshold && !this.isRevealed) {
-            this.revealSuccess();
+            this.revealSuccess(progress);
           }
         },
         onComplete: () => {
           if (!this.isRevealed) {
-            this.revealSuccess();
+            this.revealSuccess(1.0);
           }
         },
         onScratchStart: () => {
@@ -120,51 +174,54 @@ class App {
     }
   }
 
-  private revealSuccess() {
+  private revealSuccess(progress: number) {
     this.isRevealed = true;
     this.scratchCard.reveal();
     this.playCelebration();
     this.soundManager.playCelebration();
-  }
+    this.saveCollection(this.blessingElement.textContent || '');
 
-  private playCelebration() {
-    const duration = 3 * 1000;
-    const animationEnd = Date.now() + duration;
-    const defaults = { startVelocity: 30, spread: 360, ticks: 60, zIndex: 0 };
-
-    const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
-
-    const interval: any = setInterval(() => {
-      const timeLeft = animationEnd - Date.now();
-
-      if (timeLeft <= 0) {
-        return clearInterval(interval);
-      }
-
-      const particleCount = 50 * (timeLeft / duration);
-      confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } });
-      confetti({ ...defaults, particleCount, origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } });
-    }, 250);
+    if (progress > 0.98) {
+      setTimeout(() => {
+        alert('🏆 潔癖王！您的堅持令人敬佩！祝您今年運勢也一樣順順利利！');
+      }, 500);
+    }
   }
 
   private async handleShare() {
-    const text = `我在馬年刮刮樂刮到了：『${this.blessingElement.textContent}』！快來試試你的手氣！`;
-    const url = window.location.href;
+    if (!this.isRevealed) {
+      alert('先刮開好運再分享吧！');
+      return;
+    }
 
-    if (navigator.share) {
-      try {
+    const captureArea = document.getElementById('capture-area')!;
+    
+    try {
+      const canvas = await html2canvas(captureArea, {
+        backgroundColor: null,
+        scale: 2,
+      });
+      
+      const image = canvas.toDataURL('image/png');
+      
+      if (navigator.share && /Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+        const blob = await (await fetch(image)).blob();
+        const file = new File([blob], 'lucky-card.png', { type: 'image/png' });
+        
         await navigator.share({
           title: '馬年大吉刮刮樂',
-          text: text,
-          url: url,
+          text: `我在馬年刮刮樂刮到了：『${this.blessingElement.textContent}』！`,
+          files: [file],
         });
-      } catch (err) {
-        console.log('分享取消或失敗', err);
+      } else {
+        // PC 端或不支援檔案分享時，觸發下載
+        const link = document.createElement('a');
+        link.download = 'lucky-card.png';
+        link.href = image;
+        link.click();
       }
-    } else {
-      // 不支援 Web Share API 時的備案 (複製到剪貼簿)
-      navigator.clipboard.writeText(`${text} ${url}`);
-      alert('已複製好運訊息，快去傳給朋友吧！');
+    } catch (err) {
+      console.error('分享失敗', err);
     }
   }
 }
