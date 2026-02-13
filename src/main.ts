@@ -43,6 +43,31 @@ class App {
     }
   }
 
+  private initDecorations() {
+    // 加入燈籠裝飾
+    const lanternSVG = `
+      <svg viewBox="0 0 100 120" xmlns="http://www.w3.org/2000/svg">
+        <rect x="45" y="0" width="10" height="20" fill="#ffd700"/>
+        <ellipse cx="50" cy="60" rx="40" ry="45" fill="#d32f2f" stroke="#ffd700" stroke-width="3"/>
+        <line x1="50" y1="15" x2="50" y2="105" stroke="#ffd700" stroke-width="2"/>
+        <line x1="25" y1="30" x2="25" y2="90" stroke="#ffd700" stroke-width="1" opacity="0.5"/>
+        <line x1="75" y1="30" x2="75" y2="90" stroke="#ffd700" stroke-width="1" opacity="0.5"/>
+        <rect x="30" y="105" width="40" height="10" fill="#ffd700"/>
+      </svg>
+    `;
+
+    const leftLantern = document.createElement('div');
+    leftLantern.className = 'decoration lantern lantern-left';
+    leftLantern.innerHTML = lanternSVG;
+    
+    const rightLantern = document.createElement('div');
+    rightLantern.className = 'decoration lantern lantern-right';
+    rightLantern.innerHTML = lanternSVG;
+
+    document.body.appendChild(leftLantern);
+    document.body.appendChild(rightLantern);
+  }
+
   private handleGlobalError(err: any) {
     const app = document.querySelector<HTMLDivElement>('#app');
     if (app) {
