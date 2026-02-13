@@ -44,11 +44,20 @@ export class ScratchCard {
     this.ctx.fillStyle = this.options.coverColor;
     this.ctx.fillRect(0, 0, width, height);
 
-    // Add some "scratch here" text or pattern if needed
-    this.ctx.fillStyle = '#999999';
-    this.ctx.font = '20px Arial';
+    // 加上簡單的斜線紋理
+    this.ctx.strokeStyle = 'rgba(255,255,255,0.1)';
+    this.ctx.lineWidth = 2;
+    for (let i = -width; i < width; i += 10) {
+      this.ctx.beginPath();
+      this.ctx.moveTo(i, 0);
+      this.ctx.lineTo(i + height, height);
+      this.ctx.stroke();
+    }
+
+    this.ctx.fillStyle = '#666666';
+    this.ctx.font = 'bold 24px "Microsoft JhengHei"';
     this.ctx.textAlign = 'center';
-    this.ctx.fillText('刮開有驚喜', width / 2, height / 2 + 7);
+    this.ctx.fillText('請在此刮開', width / 2, height / 2 + 8);
 
     this.ctx.globalCompositeOperation = 'destination-out';
   }

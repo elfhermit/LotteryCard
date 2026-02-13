@@ -1,12 +1,15 @@
 :root {
-  --primary-red: #d32f2f;
+  --primary-red: #b71c1c;
+  --deep-red: #7f0000;
   --gold: #ffd700;
+  --bright-gold: #fff176;
   --white: #ffffff;
+  --bg-gradient: radial-gradient(circle, #d32f2f 0%, #7f0000 100%);
 }
 
 body {
-  font-family: 'Microsoft JhengHei', Arial, sans-serif;
-  background-color: var(--primary-red);
+  font-family: 'Kaiti', 'STKaiti', 'Microsoft JhengHei', serif;
+  background: var(--bg-gradient);
   color: var(--white);
   display: flex;
   justify-content: center;
@@ -20,18 +23,61 @@ body {
 #app {
   text-align: center;
   width: 90%;
-  max-width: 400px;
+  max-width: 450px;
+  position: relative;
+  z-index: 10;
+}
+
+/* 裝飾性元素 */
+.decoration {
+  position: fixed;
+  pointer-events: none;
+  z-index: 1;
+}
+
+.lantern {
+  width: 60px;
+  top: -10px;
+  animation: swing 3s ease-in-out infinite alternate;
+  transform-origin: top center;
+}
+
+.lantern-left { left: 5%; }
+.lantern-right { right: 5%; }
+
+@keyframes swing {
+  from { transform: rotate(-5deg); }
+  to { transform: rotate(5deg); }
+}
+
+.cloud {
+  width: 100px;
+  opacity: 0.6;
+  animation: float 10s linear infinite;
+}
+
+@keyframes float {
+  from { transform: translateX(-150%); }
+  to { transform: translateX(400%); }
+}
+
+/* 卡片容器美化 */
+.card-outer {
+  padding: 15px;
+  background: linear-gradient(135deg, var(--gold) 0%, var(--bright-gold) 50%, var(--gold) 100%);
+  border-radius: 20px;
+  box-shadow: 0 15px 35px rgba(0,0,0,0.5);
+  margin: 20px auto;
+  position: relative;
 }
 
 .card-container {
   position: relative;
-  width: 300px;
-  height: 200px;
-  margin: 20px auto;
+  width: 320px;
+  height: 220px;
   background-color: var(--white);
-  border: 10px solid var(--gold);
-  border-radius: 15px;
-  box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+  border: 4px solid var(--deep-red);
+  border-radius: 10px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -39,10 +85,16 @@ body {
 }
 
 .blessing-text {
-  font-size: 2.5rem;
-  color: var(--primary-red);
+  font-size: 2.2rem;
+  color: var(--deep-red);
   font-weight: bold;
-  user-select: none;
+  padding: 20px;
+  line-height: 1.4;
+  text-shadow: 1px 1px 0px rgba(0,0,0,0.1);
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  height: 100%;
 }
 
 #scratch-canvas {
@@ -51,32 +103,62 @@ body {
   left: 0;
   cursor: crosshair;
   touch-action: none;
+  border-radius: 6px;
+}
+
+/* 按鈕美化 */
+.button-group {
+  display: flex;
+  gap: 15px;
+  justify-content: center;
+  margin-top: 25px;
 }
 
 .btn {
-  background-color: var(--gold);
-  color: var(--primary-red);
-  border: none;
-  padding: 12px 24px;
-  font-size: 1.2rem;
-  font-weight: bold;
-  border-radius: 25px;
+  background: linear-gradient(to bottom, var(--bright-gold), var(--gold));
+  color: var(--deep-red);
+  border: 2px solid var(--deep-red);
+  padding: 14px 28px;
+  font-size: 1.3rem;
+  font-weight: 900;
+  border-radius: 50px;
   cursor: pointer;
-  margin-top: 20px;
-  transition: transform 0.2s, box-shadow 0.2s;
-  box-shadow: 0 4px 8px rgba(0,0,0,0.2);
+  transition: all 0.3s;
+  box-shadow: 0 6px 0 var(--deep-red);
+  position: relative;
+  top: 0;
 }
 
 .btn:active {
-  transform: scale(0.95);
+  top: 4px;
+  box-shadow: 0 2px 0 var(--deep-red);
 }
 
-.hidden {
-  display: none;
+.btn-share {
+  background: linear-gradient(to bottom, #ffffff, #eeeeee);
+  font-size: 1.1rem;
+}
+
+.btn-main {
+  animation: pulse 2s infinite;
+}
+
+@keyframes pulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
 }
 
 h1 {
-  font-size: 1.8rem;
-  margin-bottom: 10px;
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
+  font-size: 2.5rem;
+  margin-bottom: 5px;
+  color: var(--gold);
+  text-shadow: 3px 3px 0px var(--deep-red);
+  letter-spacing: 2px;
+}
+
+.subtitle {
+  color: var(--bright-gold);
+  margin-bottom: 20px;
+  font-size: 1.1rem;
 }
